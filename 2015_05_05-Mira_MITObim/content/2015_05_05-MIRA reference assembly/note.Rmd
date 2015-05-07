@@ -68,3 +68,27 @@ strain = pfrag
 **Max. RAM used**: 32Gb
 
 **Time ended**: `5:37:58.43`
+
+**Outputs:**
+```
+/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/ToSojaeMt_assembly: 
+
+ToSojaeMt_d_chkpt/  
+ToSojaeMt_d_results/
+ToSojaeMt_d_info/   
+ToSojaeMt_d_tmp/
+```
+
+### Running MITObim:
+
+> NOTE 1: It's necessary to merge the paried end reads into the same file:
+  `cat *.fastq.gz > all_reads.fastq.gz`
+
+> NOTE 2: There is a tweak to make it run in NFS systems (as MIRA doesn't like NFS systems):
+  Line 961: from `-NW:mrnl=0` to `-NW:cnfs=warn;mrnl=0 `
+
+`/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/MITObim/MITObim_1.8.pl -start 1 -end 10 -sample prubi -ref psojae -readpool /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Prubi/all_reads.fastq.gz -maf /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/ToSojaeMt_rubi_assembly/ToSojaeMt_rubi_d_results/ToSojaeMt_rubi_out.maf --mirapath ~/bin/mira_4.0.2_linux-gnu_x86_64_static/bin/ --paired --clean`
+
+**Time started**: `05/07/2015 10:31:34`
+
+
