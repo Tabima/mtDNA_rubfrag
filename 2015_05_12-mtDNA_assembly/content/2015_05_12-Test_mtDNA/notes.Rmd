@@ -1,6 +1,9 @@
 ---
 title: "MIRA read assembly"
+date: "2015-05-12"
+output: html_document
 ---
+
 
 To obtain the mtDNA from *P. rubi* and *P. fragariae* we want to use [MITObim](http://github.com/chrishah/MITObim):
 
@@ -91,11 +94,4 @@ ToSojaeMt_d_tmp/
 
 **Time started**: `05/07/2015 10:31:34`
 
-### Anotation transfer
 
-The annotations were transfered after doing a `MAUVE` whole genome alignment with *P. sojae*. Transfers were made using `Geneious 6.1`. Annotations were removed from regions with constant N's (such as non-annotated ORF's in *P. sojae*)
-
-### Results:
-
-* Pfrag: 52 iterations, `Pfrag.gff`
-* Prub: 28 interations,  `Prub.gff`

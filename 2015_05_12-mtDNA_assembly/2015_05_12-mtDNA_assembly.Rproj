@@ -13,4 +13,4 @@ RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
 BuildType: Custom
-CustomScriptPath: 2015_05_05-Mira_MITObim/src/build_all.R
+CustomScriptPath: src/build_all.R
