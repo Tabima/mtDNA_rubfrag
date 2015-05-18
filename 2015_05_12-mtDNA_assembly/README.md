@@ -1,15 +1,114 @@
-This is a lab notebook following the the format suggested by Noble 2009 in "A quick guide to organizing computational biology projects".
-It incorperates the functionality of RStudio and the R packages rmarkdown, knitr, packrat, and labtools to integrate analysis, note taking, and results into a sharable and reproducable format.
-Below are descriptions of what the various files and folders in this folder do.
+---
+title: "MIRA read assembly"
+date: "2015-05-12"
+output: html_document
+---
 
 
-* `.gitignore`: Lists what files should be ignored by git version control. 
-* `.Rprofile`: Code ran by R each time an R session is started.
-* `yyyy_mm_dd-notebook.Rproj`: The RStudio project settings file.
-* `bin`: Contains and binary programs used for analysis.
-* `data`: Contains raw/static data.
-* `reports`: Contains reports composed of one or more notes from the `content` folder.
-* `references`: Contains a .bibtex file for markdown citations and possibly the pdfs of cited papers. 
-* `content`: Contains notes and analyses automatically ran when building.
-* `src`: Contains custom scripts used for analyses.
-* `info.yaml`: Information on attributes of the notebook.
+To obtain the mtDNA from *P. rubi* and *P. fragariae* we want to use [MITObim](http://github.com/chrishah/MITObim):
+
+> The MITObim procedure (mitochondrial baiting and iterative mapping) represents a highly efficient approach to assembling novel mitochondrial genomes of non-model organisms directly from total genomic DNA derived NGS reads. Labor intensive long-range PCR steps prior to sequencing are no longer required. MITObim is capable of reconstructing mitochondrial genomes without the need of a reference genome of the targeted species by relying solely on (a) mitochondrial genome information of more distantly related taxa or (b) short mitochondrial barcoding sequences (seeds), such as the commonly used cytochrome-oxidase subunit 1 (COI), as a starting reference.
+
+The script is performing three steps and iteratively repeating them:
+
+  1. Deriving reference sequence from previous mapping assembly
+  
+  2. In silico baiting using the newly derived reference
+  
+  3. Previously fished reads are mapped to the newly derived reference leading to an extension of the reference sequence. 
+
+It requires *[MIRA V 4.0](http://mira-assembler.sourceforge.net/)* to generate the assemblies.
+
+***
+
+##Step 1: Mapping the reads to the *P. sojae* genome using MIRA
+
+
+**Reference:** 
+  
+  * *P. sojae* genome [`NC_009385.1`](http://www.ncbi.nlm.nih.gov/nuccore/NC_009385.1)
+    * Location in cluster: `/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/sojae_mtdna.fa`
+**Reads:**
+
+  * *P. fragariae*: `/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Pfrag/cleandata_500_1.fq.gz` & `/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Pfrag/cleandata_500_2.fq.gz`
+
+* *P. rubi*: `/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Prub/cleandata_500_1.fq.gz` & `/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Pfrag/cleandata_500_2.fq.gz`
+  
+**Other requirements:**
+  
+  * MIRA `manifest.comf` file (the *P. fragariae* version shown here):
+  
+```bash
+  
+#manifest file for basic mapping assembly with illumina data using MIRA 4
+
+project = ToSojaeMt
+
+job=genome,mapping,accurate
+
+parameters = COMMON_SETTINGS -NW:cnfs=warn;mrnl=0;cac=no -AS:nop=1 SOLEXA_SETTINGS -CO:msr=no 
+
+readgroup
+is_reference
+data = /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/sojae_mtdna.fa
+technology = text
+strain = psojae
+
+readgroup = DataIlluminaPairedLib
+autopairing
+data = /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Pfrag/cleandata_500_1.fastq.gz /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Pfrag/cleandata_500_2.fastq.gz
+technology = solexa
+strain = pfrag
+
+```
+
+### Running MIRA:
+
+`~/bin/mira_4.0.2_linux-gnu_x86_64_static/bin/mira manifest.comf`
+
+**Time started**: `Localtime: Tue May  5 16:03:51 2015`
+
+**Max. RAM used**: 32Gb
+
+**Time ended**: `5:37:58.43`
+
+**Outputs:**
+```
+/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/ToSojaeMt_assembly: 
+
+ToSojaeMt_d_chkpt/  
+ToSojaeMt_d_results/
+ToSojaeMt_d_info/   
+ToSojaeMt_d_tmp/
+```
+
+### Running MITObim:
+
+> NOTE 1: It's necessary to merge the paried end reads into the same file:
+  `cat *.fastq.gz > all_reads.fastq.gz`
+
+> NOTE 2: There is a tweak to make it run in NFS systems (as MIRA doesn't like NFS systems):
+  Line 961: from `-NW:mrnl=0` to `-NW:cnfs=warn;mrnl=0 `
+
+`/nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/MITObim/MITObim_1.8.pl -start 1 -end 10 -sample prubi -ref psojae -readpool /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/Prubi/all_reads.fastq.gz -maf /nfs0/Grunwald_Lab/home/tabimaj/genomes_rf/mtdna/ToSojaeMt_rubi_assembly/ToSojaeMt_rubi_d_results/ToSojaeMt_rubi_out.maf --mirapath ~/bin/mira_4.0.2_linux-gnu_x86_64_static/bin/ --paired --clean`
+
+**Time started**: `05/07/2015 10:31:34`
+
+## Output
+
+All the files are annotated by BLAST using the *P. sojae* genes (E 10-8)
+
+### Fragariae
+
+* `Pfrag_mtDNA.gb` (GenBank format)
+* `Pfrag_mtDNA.gff` (GFF format)
+
+### Rubi
+
+* `Prub_mtDNA.gb` (GenBank format)
+* `Prub_mtDNA.gff` (GFF format)
+
+### MAUVE alignment:
+
+* `MAUVE_all.pdf` (Visual alignment)
+* `Mauve_Alignment.xfma`(MAFFT alignment)
