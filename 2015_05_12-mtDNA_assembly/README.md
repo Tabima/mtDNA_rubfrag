@@ -117,8 +117,8 @@ All the files are annotated by BLAST using the *P. sojae* genes (E 10-8)
 
 8 genes were not found with >90% BLAST identity between *P. sojae* and our two species:
 
-orf206
-orf116
-ymf94
-ymf98
-Tandem of orf98/112a/112b/101 in positions 29329:30346
+* orf206
+* orf116
+* ymf94
+* ymf98
+* Tandem of orf98/112a/112b/101 in positions 29329:30346
